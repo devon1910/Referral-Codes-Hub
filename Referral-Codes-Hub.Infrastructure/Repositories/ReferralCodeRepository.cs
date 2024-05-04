@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Referral_Codes_Hub.Application.Abstractions;
 using Referral_Codes_Hub.Application.DTOS;
@@ -15,9 +16,9 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
 {
     public class ReferralCodeRepository : IReferralCodeRepository
     {
-        ReferralCodeDBContext _dbContext;
+        IdentityDbContext _dbContext;
         ApiResponse<string> response = new ApiResponse<string>();
-        public ReferralCodeRepository(ReferralCodeDBContext dbContext)
+        public ReferralCodeRepository(IdentityDbContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -74,7 +75,6 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
 
                     if (customerCode == null)
                     {
-
                         response = new ApiResponse<string>()
                         {
                             status = false,
@@ -91,7 +91,13 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                 await _dbContext.ReferralCodes.AddAsync(referralCodes);
                 await _dbContext.SaveChangesAsync();
 
-               
+                response = new ApiResponse<string>()
+                {
+                    status = true,
+                    message = !request.isReferredFromUser ? "Referral Code Generated Successfully" : "Referral Code Generated Successfully and Number of Referrals Updated",
+                    data = baseUrl + uniqueCode,
+                };
+
                 return response;
             }
             catch (Exception ex)
@@ -115,7 +121,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                 response = new ApiResponse<string>()
                 {
                     status = true,
-                    message = referralLink == null ? "Referral Link for Customer Not Found" : "Referal Link Retrieved.",
+                    message = referralLink == null ? "Referral Link for Customer Not Found" : "Referral Link Retrieved.",
                     data = referralLink == null ? "" : referralLink.ReferralLink
                 };
                 return response;

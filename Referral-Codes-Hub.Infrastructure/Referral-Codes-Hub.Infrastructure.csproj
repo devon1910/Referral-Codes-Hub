@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Referral-Codes-Hub.Application\Referral-Codes-Hub.Application.csproj" />
     <ProjectReference Include="..\Referral-Codes-Hub.Domain\Referral-Codes-Hub.Domain.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.4" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.4" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
