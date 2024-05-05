@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Referral_Codes_Hub.Application.Abstractions;
+using Referral_Codes_Hub.Application.DTOS;
+using Referral_Codes_Hub.Application.RoleManagement.Commands;
 using Referral_Codes_Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -20,16 +22,23 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
             _roleManager = roleManager;
             _userManager = userManager;
         }
-        async Task<List<Role>> IRoleRepository.GetRolesAsync() =>  
-            await _roleManager.Roles.Select(x => new Role { Id = Guid.Parse(x.Id), Name = x.Name}).ToListAsync();
+        
+        public async Task<ApiResponse<List<Role>>> GetRolesAsync() {
 
-           
-        async Task<List<string>> IRoleRepository.GetUserRolesAsync(string emailAddress)
+            List<Role> allRoles = await _roleManager.Roles.Select(x => new Role { Id = Guid.Parse(x.Id), Name = x.Name }).ToListAsync();      
+            return CreateAPIResponse<List<Role>>.GenerateResponse(true, "All Roles Retrieved Successfully.", allRoles);
+        }  
+                
+        public async Task<ApiResponse<List<string>>> GetUserRolesAsync(string emailAddress)
         {
-            var roles= await _userManager.GetRolesAsync(await _userManager.FindByEmailAsync(emailAddress));
-            return roles.ToList();
+            IList<string> roles = [];
+            var user = await _userManager.FindByEmailAsync(emailAddress);
+            if (user != null) {
+                roles = await _userManager.GetRolesAsync(user);
+            }
+            return CreateAPIResponse<List<string>>.GenerateResponse(true, "User Roles Retrieved Successfully.", roles.ToList());
         }
-        async Task<List<string>> IRoleRepository.AddUserRolesAsync(string[] roles)
+        public async Task<ApiResponse<bool>> CreateNewRoleAsync(string[] roles)
         {
             var roleList = new List<string>();
             foreach (var role in roles)
@@ -40,28 +49,27 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                     roleList.Add(role);
                 }
             }
-            return roleList;
+            return CreateAPIResponse<bool>.GenerateResponse(true, "New Role(s) Created.", true);
+
         }
 
-        async Task<bool> IRoleRepository.AddUserRolesAsync(string emailAddress, string[] roles)
+        public async Task<ApiResponse<bool>> AddUserRolesAsync(AssignUserNewRole request)
         {
-            var user = await _userManager.FindByEmailAsync(emailAddress);
+            var user = await _userManager.FindByEmailAsync(request.emailAddress);
             if (user != null) {
 
-                foreach (var role in roles)
+                foreach (var role in request.roles)
                 {
                     var existingRole= await _userManager.IsInRoleAsync(user, role);
 
                     if (!existingRole) {
                         await _roleManager.CreateAsync(new IdentityRole(role));
-                        return true;
+                        return CreateAPIResponse<bool>.GenerateResponse(true, "User Added to Role(s) Successfully.", true);
                     }
                 }
             }
-            return false;
+            return CreateAPIResponse<bool>.GenerateResponse(false, "Failed at Assigning User to a role.", false);
 
-        }
-
-       
+        }     
     }
 }

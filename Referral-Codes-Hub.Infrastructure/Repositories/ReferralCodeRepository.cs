@@ -1,4 +1,5 @@
 ﻿using Azure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Referral_Codes_Hub.Application.Abstractions;
@@ -17,16 +18,21 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
     public class ReferralCodeRepository : IReferralCodeRepository
     {
         IdentityDbContext _dbContext;
-        ApiResponse<string> response = new ApiResponse<string>();
-        public ReferralCodeRepository(IdentityDbContext dbContext)
+        UserManager<IdentityUser> _userManager;
+        public ReferralCodeRepository(IdentityDbContext dbContext, UserManager<IdentityUser> userManager)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
         }
         public async Task<ApiResponse<string>> GenerateReferralCodeAndUpdateReferred(CreateReferralCodeUpdateReferred request)
         {
             
             try
             {
+                var user = _userManager.FindByIdAsync(request.userId);
+
+                if(user==null) return CreateAPIResponse<string>.GenerateResponse(false, "I'm Sorry, User Not Found.", null);
+
                 const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
                 Random random = new();
 
@@ -34,13 +40,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
 
                 if (existingReferralCode > 0)
                 {
-
-                    response = new ApiResponse<string>()
-                    {
-                        status = false,
-                        message = "Customer already has a Referral Code.",
-                    };
-                    return response;
+                    return CreateAPIResponse<string>.GenerateResponse(false, "Customer already has a Referral Code.",null);
                 }
 
                 List<string> referrals = _dbContext.ReferralCodes.Select(x => x.Code).AsNoTracking().ToList();
@@ -75,12 +75,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
 
                     if (customerCode == null)
                     {
-                        response = new ApiResponse<string>()
-                        {
-                            status = false,
-                            message = "Unable to Generate new user Referral Code. Please ensure existing User's Referral Code is valid and try again."
-                        };
-                        return response;
+                        return CreateAPIResponse<string>.GenerateResponse(false, "Unable to Generate new user Referral Code. Please ensure existing User's Referral Code is valid and try again.", null);
                     }
 
                     customerCode.NumberOfUsersReferred += 1;
@@ -90,25 +85,11 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                 }
                 await _dbContext.ReferralCodes.AddAsync(referralCodes);
                 await _dbContext.SaveChangesAsync();
-
-                response = new ApiResponse<string>()
-                {
-                    status = true,
-                    message = !request.isReferredFromUser ? "Referral Code Generated Successfully" : "Referral Code Generated Successfully and Number of Referrals Updated",
-                    data = baseUrl + uniqueCode,
-                };
-
-                return response;
+                return CreateAPIResponse<string>.GenerateResponse(false, !request.isReferredFromUser ? "Referral Code Generated Successfully" : "Referral Code Generated Successfully and Number of Referrals Updated", baseUrl + uniqueCode);
             }
             catch (Exception ex)
             {
-                response = new ApiResponse<string>()
-                {
-                    status = false,
-                    message = "Unable to Generate Referral Link at the moment, Kindly Reachout to the Technical Team.",
-
-                };
-                return response;
+                return CreateAPIResponse<string>.GenerateResponse(false, "I'm sorry, Unable to Generate Referral Link at the moment, Kindly Reachout to the Technical Team.", null);
             }
         }
 
@@ -117,26 +98,12 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
             try
             {
                 var referralLink = _dbContext.ReferralCodes.FirstOrDefault(x => x.UserId == customerId);
-
-                response = new ApiResponse<string>()
-                {
-                    status = true,
-                    message = referralLink == null ? "Referral Link for Customer Not Found" : "Referral Link Retrieved.",
-                    data = referralLink == null ? "" : referralLink.ReferralLink
-                };
-                return response;
-
+                return CreateAPIResponse<string>.GenerateResponse(false, referralLink == null ? "Referral Link for Customer Not Found" : "Referral Link Retrieved.", referralLink == null ? "" : referralLink.ReferralLink);
             }
 
             catch (Exception ex)
             {
-                response = new ApiResponse<string>()
-                {
-                    status = false,
-                    message = "Unable to Retrieve Referral Link at the moment. Kindly reach out to the Technical Team..",
-                    data = "",
-                };
-                return response;
+                return CreateAPIResponse<string>.GenerateResponse(false, "I'm sorry, Unable to Generate Referral Link at the moment, Kindly Reachout to the Technical Team.", null);
             }
         }
 

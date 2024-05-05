@@ -37,9 +37,11 @@ builder.Services
 var cs = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<IdentityDbContext>(opt => opt.UseSqlServer(cs));
 
-builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddEntityFrameworkStores<IdentityDbContext>();
+builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddRoles<IdentityRole>().AddEntityFrameworkStores<IdentityDbContext>();
 
 builder.Services.AddScoped<IReferralCodeRepository, ReferralCodeRepository>();
+builder.Services.AddScoped<IRoleRepository, RolesRepository>();
+
 var app = builder.Build();
 
 

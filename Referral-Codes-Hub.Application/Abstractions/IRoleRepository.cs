@@ -1,4 +1,6 @@
-﻿using Referral_Codes_Hub.Domain.Entities;
+﻿using Referral_Codes_Hub.Application.DTOS;
+using Referral_Codes_Hub.Application.RoleManagement.Commands;
+using Referral_Codes_Hub.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +11,13 @@ namespace Referral_Codes_Hub.Application.Abstractions
 {
     public interface IRoleRepository
     {
-        Task<List<Role>> GetRolesAsync();
+        Task<ApiResponse<List<Role>>> GetRolesAsync();
 
-        Task<List<string>> GetUserRolesAsync(string emailAddress);
+        Task<ApiResponse<List<string>>> GetUserRolesAsync(string emailAddress);
 
-        Task<List<string>> AddUserRolesAsync(string[] roles);
+        Task<ApiResponse<bool>> CreateNewRoleAsync(string[] roles);
 
-        Task<bool> AddUserRolesAsync(string emailAddress,string[] roles);
+        Task<ApiResponse<bool>> AddUserRolesAsync(AssignUserNewRole request);
 
     }
 }
