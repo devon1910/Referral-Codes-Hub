@@ -26,6 +26,8 @@ builder.Services.AddSwaggerGen(option => {
         Type= Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
     });
 
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Referral Hub API", Version = "v1" });
+
     option.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 builder.Services
@@ -42,17 +44,23 @@ builder.Services.AddIdentityApiEndpoints<IdentityUser>().AddRoles<IdentityRole>(
 builder.Services.AddScoped<IReferralCodeRepository, ReferralCodeRepository>();
 builder.Services.AddScoped<IRoleRepository, RolesRepository>();
 
+builder.Services.AddCors(options =>
+                options.AddPolicy("AllowAll", policy =>
+                    policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
+
 var app = builder.Build();
 
-
-app.MapIdentityApi<IdentityUser>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
+
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
+
+app.MapIdentityApi<IdentityUser>();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

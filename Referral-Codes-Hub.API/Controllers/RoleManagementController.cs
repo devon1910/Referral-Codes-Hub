@@ -12,7 +12,7 @@ namespace Referral_Codes_Hub.API.Controllers
 {
     [Authorize(Roles = "Admin")]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class RoleManagementController : Controller
     {
         private readonly IMediator mediator;

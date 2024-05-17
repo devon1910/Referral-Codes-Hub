@@ -9,7 +9,7 @@ namespace Referral_Codes_Hub.API.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class ReferralCodeController
     {
         private readonly IMediator mediator;
