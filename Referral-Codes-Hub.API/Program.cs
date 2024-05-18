@@ -63,9 +63,10 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 app.MapIdentityApi<IdentityUser>();
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<IdentityDbContext>();
-    context.Database.Migrate();
+    //var services = scope.ServiceProvider;
+    //var context = services.GetRequiredService<IdentityDbContext>();
+    //context.Database.Migrate();
+    // Get the DbContext instance
 }
 
 

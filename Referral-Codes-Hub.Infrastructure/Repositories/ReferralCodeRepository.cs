@@ -29,7 +29,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
             
             try
             {
-                var user = _userManager.FindByEmailAsync(request.emailAddress);
+                var user = _dbContext.Users.Where(x => x.Email == request.emailAddress).FirstOrDefault();
 
                 if(user==null) return CreateAPIResponse<string>.GenerateResponse(false, "I'm Sorry, User Not Found.", null);
 
@@ -59,7 +59,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                     }
                 }
 
-                string baseUrl = AppSettingsHelper.Settings("BaseUrl");
+                string baseUrl = "https://DevonsWorld/";
 
                 ReferralCode referralCodes = new ReferralCode()
                 {
@@ -89,7 +89,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
             }
             catch (Exception ex)
             {
-                return CreateAPIResponse<string>.GenerateResponse(false, "I'm sorry, Unable to Generate Referral Link at the moment, Kindly Reachout to the Technical Team.", null);
+                return CreateAPIResponse<string>.GenerateResponse(false, "I'm sorry, Unable to Generate Referral Link at the moment, Kindly Reachout to the Technical Team.", ex.Message);
             }
         }
 

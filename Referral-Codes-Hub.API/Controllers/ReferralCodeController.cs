@@ -21,8 +21,8 @@ namespace Referral_Codes_Hub.API.Controllers
         [HttpPost("[action]")]
         public async Task<ApiResponse<string>> GenerateReferralLink([FromBody] CreateReferralCodeUpdateReferred createReferralCodeUpdateReferred) => await this.mediator.Send(createReferralCodeUpdateReferred);
 
-        [HttpGet("[action]/{UserID}")]
-        public async Task<ApiResponse<string>> GetUserReferralLink( string UserID) => await this.mediator.Send(new GetUserReferralLink {UserId= UserID });
+        [HttpGet("[action]/{EmailAddress}")]
+        public async Task<ApiResponse<string>> GetUserReferralLink( string EmailAddress) => await this.mediator.Send(new GetUserReferralLink {UserId= EmailAddress });
 
 
     }
