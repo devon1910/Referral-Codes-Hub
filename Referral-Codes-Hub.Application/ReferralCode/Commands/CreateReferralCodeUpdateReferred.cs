@@ -11,7 +11,7 @@ namespace Referral_Codes_Hub.Application.ReferralCode.Commands
 {
     public class CreateReferralCodeUpdateReferred : IRequest<ApiResponse<string>>
     {
-        public required string userId { get; set; }
+        public required string emailAddress { get; set; }
 
         public string? referralCode { get; set; }
         [DefaultValue(false)]

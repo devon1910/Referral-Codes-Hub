@@ -11,7 +11,7 @@ namespace Referral_Codes_Hub.Domain.Entities
     {
         [Key]
         public int RefId { get; set; }
-        public required string UserId { get; set; }
+        public required string EmailAddress { get; set; }
         public required string Code { get; set; }
         public required string ReferralLink { get; set; }
         public int NumberOfUsersReferred { get; set; } = 0;

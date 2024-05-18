@@ -29,14 +29,14 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
             
             try
             {
-                var user = _userManager.FindByIdAsync(request.userId);
+                var user = _userManager.FindByEmailAsync(request.emailAddress);
 
                 if(user==null) return CreateAPIResponse<string>.GenerateResponse(false, "I'm Sorry, User Not Found.", null);
 
                 const string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
                 Random random = new();
 
-                int existingReferralCode = await _dbContext.ReferralCodes.Where(x => x.UserId == request.userId).CountAsync();
+                int existingReferralCode = await _dbContext.ReferralCodes.Where(x => x.EmailAddress == request.emailAddress).CountAsync();
 
                 if (existingReferralCode > 0)
                 {
@@ -65,7 +65,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                 {
                     ReferralLink = baseUrl + uniqueCode,
                     Code = uniqueCode,
-                    UserId = request.userId,
+                    EmailAddress = request.emailAddress,
                 };
 
                 if (request.isReferredFromUser)
@@ -80,7 +80,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
 
                     customerCode.NumberOfUsersReferred += 1;
                     customerCode.DateLastUpdated = DateTime.UtcNow.AddHours(1);
-                    referralCodes.ReferredBy = customerCode.UserId;
+                    referralCodes.ReferredBy = customerCode.EmailAddress;
 
                 }
                 await _dbContext.ReferralCodes.AddAsync(referralCodes);
@@ -97,7 +97,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
         {
             try
             {
-                var referralLink = _dbContext.ReferralCodes.FirstOrDefault(x => x.UserId == customerId);
+                var referralLink = _dbContext.ReferralCodes.FirstOrDefault(x => x.EmailAddress == customerId);
                 return CreateAPIResponse<string>.GenerateResponse(false, referralLink == null ? "Referral Link for Customer Not Found" : "Referral Link Retrieved.", referralLink == null ? "" : referralLink.ReferralLink);
             }
 
