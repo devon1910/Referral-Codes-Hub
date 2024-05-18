@@ -85,7 +85,7 @@ namespace Referral_Codes_Hub.Infrastructure.Repositories
                 }
                 await _dbContext.ReferralCodes.AddAsync(referralCodes);
                 await _dbContext.SaveChangesAsync();
-                return CreateAPIResponse<string>.GenerateResponse(false, !request.isReferredFromUser ? "Referral Code Generated Successfully" : "Referral Code Generated Successfully and Number of Referrals Updated", baseUrl + uniqueCode);
+                return CreateAPIResponse<string>.GenerateResponse(true, !request.isReferredFromUser ? "Referral Code Generated Successfully" : "Referral Code Generated Successfully and Number of Referrals Updated", baseUrl + uniqueCode);
             }
             catch (Exception ex)
             {
